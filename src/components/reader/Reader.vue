@@ -9,24 +9,26 @@
         <div class="right" @click="nextPage"></div>
       </div>
     </div>
-    <menu-bar :isShowing="ifShowTitleAndMenu" :defaultFontSize="currentFontSize" :fontSizeList="fontSizeList" @fontSizeSelected="onFontSizeSelected" ref="menuBar"></menu-bar>
+    <menu-bar :isShowing="ifShowTitleAndMenu" :defaultFontSize="currentFontSize" :fontSizeList="fontSizeList" @fontSizeSelected="onFontSizeSelected" @tocOpenSelected="tocOpen" ref="menuBar"></menu-bar>
     <div class="load-indicator" v-show="!ifLoadFinished">
       <img src="/static/ajax-loader.gif" alt="正在加载,请稍后">
       <span v-show="ifError">加载失败,请刷新页面重试!</span>
     </div>
-    <div class="toc-wrapper">
-      <div class="toc">
-        <div class="title-wrapper">
-          <span class="title">{{title}}</span>
-          <div class="icon-wrapper">
-            <span class="iconfont icon icon-close"></span>
+    <transition name="slide-right">
+      <div class="toc-wrapper" v-show="ifShowToc">
+        <div class="toc">
+          <div class="title-wrapper">
+            <span class="title">{{title}}</span>
+            <div class="icon-wrapper" @click="closeToc">
+              <span class="iconfont icon icon-close"></span>
+            </div>
           </div>
+          <ul class="list">
+            <li class="chapter" v-for="chapter in toc" :key="chapter.id"><span>{{ chapter.label }}</span></li>
+          </ul>
         </div>
-        <ul class="list">
-          <li class="chapter" v-for="chapter in toc" :key="chapter.id"><span>{{ chapter.label }}</span></li>
-        </ul>
       </div>
-    </div>
+    </transition>
   </div>
 </template>
 
@@ -44,6 +46,7 @@ export default {
   },
   data () {
     return {
+      ifShowToc: false,
       ifShowTitleAndMenu: false,
       ifLoadFinished: false,
       ifError: false,
@@ -111,9 +114,13 @@ export default {
       }
     },
     toggleShowTitleAndMenu () {
-      this.ifShowTitleAndMenu = !this.ifShowTitleAndMenu
-      if (!this.ifShowTitleAndMenu) {
-        this.$refs.menuBar.hideSetting()
+      if (this.ifShowToc) {
+        this.ifShowToc = false
+      } else {
+        this.ifShowTitleAndMenu = !this.ifShowTitleAndMenu
+        if (!this.ifShowTitleAndMenu) {
+          this.$refs.menuBar.hideSetting()
+        }
       }
     },
     onFontSizeSelected (fontSize) {
@@ -129,6 +136,12 @@ export default {
     },
     onKeyUp (e) {
       console.log(e)
+    },
+    tocOpen () {
+      this.ifShowToc = true
+    },
+    closeToc () {
+      this.ifShowToc = false
     }
   },
   mounted () {
@@ -188,10 +201,12 @@ export default {
   .toc-wrapper {
     position: absolute;
     left: 0;
-    bottom: 30px;
-    top: 30px;
+    bottom: 20px;
+    top: 20px;
     z-index: 200;
     width: px2rem(240);
+    border-radius: pxrem(3);
+    border-top: lightgray thin solid;
     .toc {
       background: white;
       border-right: lightgray;
@@ -249,4 +264,5 @@ export default {
     }
   }
 }
+
 </style>

@@ -2,7 +2,7 @@
   <div class="menu-bar">
     <transition name="slide-up">
       <div class="menu-wrapper" v-show="isShowing" :class="{'hide-box-shadow': isSettingShowing||!isShowing}">
-        <div class="icon-wrapper">
+        <div class="icon-wrapper" @click="tocOpenClicked">
           <span class="iconfont icon icon-menu"></span>
         </div>
         <div class="icon-wrapper">
@@ -58,6 +58,9 @@ export default {
     }
   },
   methods: {
+    tocOpenClicked () {
+      this.$emit('tocOpenSelected')
+    },
     toggleSetting () {
       if (this.isSettingShowing === true) {
         this.isSettingShowing = false
