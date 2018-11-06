@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "epubjs": "^0.3.78",
+    "localforage": "^1.7.3",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },
