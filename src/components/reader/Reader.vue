@@ -1,6 +1,6 @@
 <template>
-  <div class="ebook" @keyup="onKeyUp($event)">
-    <title-bar :isShowing="ifShowTitleAndMenu"></title-bar>
+  <div class="ebook">
+    <title-bar :isShowing="isShowTitleAndMenu"></title-bar>
     <div class="page-wrapper">
       <div id="page"></div>
       <div class="mask">
@@ -9,45 +9,34 @@
         <div class="right" @click="nextPage"></div>
       </div>
     </div>
-    <menu-bar :isShowing="ifShowTitleAndMenu" :defaultFontSize="currentFontSize" :fontSizeList="fontSizeList" @fontSizeSelected="onFontSizeSelected" @tocOpenSelected="tocOpen" ref="menuBar"></menu-bar>
+    <menu-bar :isShowing="isShowTitleAndMenu" :defaultFontSize="currentFontSize" :fontSizeList="fontSizeList" @font-size-select="onFontSizeSelected" @toc-open="openToc" ref="menuBar"></menu-bar>
     <div class="load-indicator" v-show="!ifLoadFinished">
       <img src="/static/ajax-loader.gif" alt="正在加载,请稍后">
       <span v-show="ifError">加载失败,请刷新页面重试!</span>
     </div>
-    <transition name="slide-right">
-      <div class="toc-wrapper" v-show="ifShowToc">
-        <div class="toc">
-          <div class="title-wrapper">
-            <span class="title">{{title}}</span>
-            <div class="icon-wrapper" @click="closeToc">
-              <span class="iconfont icon icon-close"></span>
-            </div>
-          </div>
-          <ul class="list">
-            <li class="chapter" v-for="chapter in toc" :key="chapter.id"><span>{{ chapter.label }}</span></li>
-          </ul>
-        </div>
-      </div>
-    </transition>
+    <toc-bar ref="tocBar" :ifShowing="isShowToc" :highlightChapter="currentChapter" :title="title" :toc="toc" @toc-close="closeToc" @toc-chapter-select="selectChapter"></toc-bar>
   </div>
 </template>
 
 <script>
 import Epub from 'epubjs'
+import TocBar from './TocBar'
 import TitleBar from './TitleBar'
 import MenuBar from './MenuBar'
 import Settings from '../../Settings'
+import localStorage from 'localforage'
 
 export default {
   name: 'Reader',
   components: {
     TitleBar,
+    TocBar,
     MenuBar
   },
   data () {
     return {
-      ifShowToc: false,
-      ifShowTitleAndMenu: false,
+      isShowToc: false,
+      isShowTitleAndMenu: false,
       ifLoadFinished: false,
       ifError: false,
       fontSizeList: [
@@ -77,25 +66,76 @@ export default {
       title: '',
       book: null,
       toc: [],
-      metadata: {}
+      metadata: {},
+      currentChapter: null,
+      isReady: false,
+      themes: {
+        white: {
+          body: {
+            color: '#000000',
+            background: '#ffffff'
+          },
+          name: 'WHITE'
+        },
+        beige: {
+          body: {
+            color: '#000000',
+            background: '#f3e8d2'
+          },
+          name: 'BEIGE'
+        },
+        night: {
+          body: {
+            color: '#ffffff',
+            background: '#4a4a4a'
+          },
+          name: 'NIGHT'
+        }
+      }
     }
   },
+  mounted () {
+    this.loadSettings()
+    this.book = new Epub({retore: true, reload: true})
+    this.book.loaded.navigation.then((navigation) => {
+      this.toc = navigation.toc
+      console.log(navigation)
+    })
+    this.initReader()
+    this.book.ready.then(() => {
+      return this.book.locations.generate()
+    }).then(() => {
+      this.locations = JSON.parse(this.book.locations.save())
+      console.log(this.locations)
+      this.isReady = true
+      this.redition.on('relocated', (location) => {
+        const percent = this.book.locations.percentageFromCfi(location.start.cfi)
+        const percentage = Math.floor(percent * 100)
+        console.log(percentage)
+      })
+    })
+  },
   methods: {
-    loadEpub () {
+    loadSettings () {
+      Settings.load(Settings.key.fontSize).then((data) => {
+        if (data != null) {
+          this.currentFontSize = data
+        }
+      })
+    },
+    initReader () {
       let path = '/static/epubs/' + this.$route.params.id + '.epub'
-      this.book = new Epub({retore: true})
       this.book.open(path).then(() => {
+        console.log(this.book)
         this.ifLoadFinished = true
         this.redition = this.book.renderTo('page', {
           width: window.innerWidth,
           height: window.innerHeight
         })
+        this.redition.themes.register(this.themes)
         this.redition.themes.fontSize(this.currentFontSize + 'px')
         this.redition.display()
-        this.book.loaded.navigation.then((navi) => {
-          this.toc = navi.toc
-        })
-        console.log(this.book)
+        this.onKeyUp(this.redition)
         this.book.loaded.metadata.then((meta) => {
           this.title = meta.title
         })
@@ -113,12 +153,19 @@ export default {
         this.redition.next()
       }
     },
+    selectChapter (chapter) {
+      if (this.redition) {
+        this.redition.display(chapter.href)
+        this.currentChapter = chapter.href
+        this.isShowToc = false
+      }
+    },
     toggleShowTitleAndMenu () {
-      if (this.ifShowToc) {
-        this.ifShowToc = false
+      if (this.isShowToc) {
+        this.isShowToc = false
       } else {
-        this.ifShowTitleAndMenu = !this.ifShowTitleAndMenu
-        if (!this.ifShowTitleAndMenu) {
+        this.isShowTitleAndMenu = !this.isShowTitleAndMenu
+        if (!this.isShowTitleAndMenu) {
           this.$refs.menuBar.hideSetting()
         }
       }
@@ -134,25 +181,39 @@ export default {
         console.log('save current font size error, reason: ' + reason)
       })
     },
-    onKeyUp (e) {
-      console.log(e)
-    },
-    tocOpen () {
-      this.ifShowToc = true
+    openToc () {
+      this.isShowToc = true
+      this.isShowTitleAndMenu = false
+      this.$refs.menuBar.hideSetting()
     },
     closeToc () {
-      this.ifShowToc = false
-    }
-  },
-  mounted () {
-    Settings.load(Settings.key.fontSize).then((data) => {
-      if (data != null) {
-        this.currentFontSize = data
+      this.isShowToc = false
+    },
+    onKeyUp (redition) {
+      document.addEventListener('keyup', (e) => {
+        if ((e.keyCode || e.which) === 37) {
+          redition.prev()
+        }
+        if ((e.keyCode || e.which) === 39) {
+          redition.next()
+        }
+      })
+    },
+    loadLocations () {
+      var key = this.book.key() + '-locations'
+      localStorage.getItem(key).then((location) => {
+        console.log(location)
+        this.redition.display()
+      })
+    },
+    onRelocated (location) {
+      this.currentChapter = location.start.href
+      console.log(location.start.href + ',' + location.start.displayed.page + '/' + location.start.displayed.total)
+      console.log(location)
+      if (this.book) {
+        localStorage.setItem(this.book.key() + '-locations', location.start.cfi)
       }
-    }).catch((reason) => {
-      console.log('load current font size error, reason: ' + reason)
-    })
-    this.loadEpub()
+    }
   }
 }
 </script>
@@ -196,71 +257,6 @@ export default {
       color: #333333;
       font-size: 0.4em;
       margin-top: px2rem(20);
-    }
-  }
-  .toc-wrapper {
-    position: absolute;
-    left: 0;
-    bottom: 20px;
-    top: 20px;
-    z-index: 200;
-    width: px2rem(240);
-    border-radius: pxrem(3);
-    border-top: lightgray thin solid;
-    .toc {
-      background: white;
-      border-right: lightgray;
-      box-shadow: px2rem(20) px2rem(10) px2rem(10) 0 rgba(0,0,0,.2);
-      height: 100%;
-      margin-bottom: 10px;
-      overflow-y: auto;
-      .list {
-        margin-top: px2rem(50);
-        list-style: none;
-        margin-left: px2rem(6);
-        margin-right: px2rem(6);
-        .chapter {
-          line-height: px2rem(30);
-          vertical-align: middle;
-          border-bottom: lightgray thin solid;
-          cursor: pointer;
-          span {
-            display: inline-block;
-            vertical-align: middle;
-            font-size: px2rem(13);
-            font-weight: bold;
-          }
-          &.chapter:last-child {
-            border: none;
-          }
-        }
-      }
-      &.toc::-webkit-scrollbar {
-        width: 0 !important;
-        -ms-overflow-style: none;
-        overflow: -moz-scrollbars-none;
-      }
-      .title-wrapper {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: px2rem(48);
-        position: absolute;
-        width: 100%;
-        background: white;
-        box-shadow: 0 2px 2px rgba(0,0,0,.2);
-        .title {
-          flex: 1;
-          font-size: px2rem(16);
-          font-weight: bold;
-          text-align: center;
-        }
-        .icon-wrapper {
-          width: px2rem(48);
-          height: 100%;
-          text-align: center;
-        }
-      }
     }
   }
 }

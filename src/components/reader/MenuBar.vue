@@ -45,7 +45,8 @@ export default {
       default: false
     },
     fontSizeList: {
-      type: Array
+      type: Array,
+      default: () => []
     },
     defaultFontSize: {
       type: Number,
@@ -59,7 +60,7 @@ export default {
   },
   methods: {
     tocOpenClicked () {
-      this.$emit('tocOpenSelected')
+      this.$emit('toc-open')
     },
     toggleSetting () {
       if (this.isSettingShowing === true) {
@@ -72,7 +73,7 @@ export default {
       this.isSettingShowing = false
     },
     onFontSizeClicked (fontSize) {
-      this.$emit('fontSizeSelected', fontSize)
+      this.$emit('font-size-select', fontSize)
     }
   }
 }

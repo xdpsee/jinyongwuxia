@@ -6,13 +6,13 @@
         </div>
         <div class="right">
           <div class="icon-wrapper">
-            <span class="iconfont icon icon-cart"></span>
+            <span class="iconfont icon icon-font"></span>
           </div>
           <div class="icon-wrapper">
-            <span class="iconfont icon icon-person"></span>
+            <span class="iconfont icon icon-theme"></span>
           </div>
           <div class="icon-wrapper">
-            <span class="iconfont icon icon-more"></span>
+            <span class="iconfont icon icon-about"></span>
           </div>
         </div>
       </div>
