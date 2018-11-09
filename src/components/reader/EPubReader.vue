@@ -102,7 +102,11 @@
         },
         methods: {
             toggleToc () {
-                this.isShowToc = !this.isShowToc
+                if (this.isShowMenu) {
+                    this.isShowMenu = false
+                } else {
+                    this.isShowToc = !this.isShowToc
+                }
             },
             chapterSelect (chapter) {
                 if (chapter.id !== this.currChapter.id) {
@@ -142,18 +146,24 @@
                 }
             },
             prevPage () {
-                if (this.redition) {
+                if (this.isShowMenu) {
+                    this.isShowMenu = false
+                } else if (this.redition) {
                     this.redition.prev()
                 }
             },
             nextPage () {
-                if (this.redition) {
+                if (this.isShowMenu) {
+                    this.isShowMenu = false
+                } else if (this.redition) {
                     this.redition.next()
                 }
             },
             clickPage () {
                 if (this.isShowToc) {
                     this.isShowToc = false
+                } else if (this.isShowMenu) {
+                    this.isShowMenu = false
                 } else {
                     this.isShowMenu = !this.isShowMenu
                     if (!this.isShowMenu) {
