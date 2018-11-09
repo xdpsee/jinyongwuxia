@@ -1,63 +1,51 @@
 <template>
-  <transition name="slide-down">
-      <div class="title-wrapper" v-show="isShowing">
-        <div class="left">
-          <span class="iconfont icon icon-back"></span>
+    <div class="title-bar-wrapper" v-show="showing">
+        <div class="icon-wrapper">
+            <span id="icon-toc" class="iconfont icon icon-menu" :style="{color: theme.body.color}" @click="onIconClick($event)"></span>
         </div>
-        <div class="right">
-          <div class="icon-wrapper">
-            <span class="iconfont icon icon-font"></span>
-          </div>
-          <div class="icon-wrapper">
-            <span class="iconfont icon icon-theme"></span>
-          </div>
-          <div class="icon-wrapper">
-            <span class="iconfont icon icon-about"></span>
-          </div>
-        </div>
-      </div>
-    </transition>
+    </div>
 </template>
 
 <script>
-export default {
-  name: 'TitleBar',
-  props: {
-    isShowing: {
-      type: Boolean,
-      default: false
+    export default {
+        name: 'TitleBar',
+        props: {
+            showing: {
+                type: Boolean,
+                default: false
+            },
+            title_text: {
+                type: String,
+                default: ''
+            }
+        },
+        methods: {
+            onIconClick (event) {
+                if (event.target.id === "icon-toc") {
+                    this.$emit('event-icon-menu-click')
+                }
+                if (event.target.id === "icon-about") {
+                    this.$emit('event-icon-about-click')
+                }
+            }
+        }
     }
-  }
-}
 </script>
 
 <style lang="scss" scoped>
-@import "../../assets/styles/global";
-.title-wrapper {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 101;
-  width: 100%;
-  height: px2rem(48);
-  display: flex;
-  background: white;
-  box-shadow: 0 px2rem(8) px2rem(8) rgba(0, 0, 0, 0.15);
-  .left {
-    flex: 0 0 px2rem(60);
-    @include center;
-  }
-  .right {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-    .icon-wrapper {
-      flex: 0 0 px2rem(40);
-      @include center;
-      .icon-cart {
-        font-size: px2rem(17);
-      }
+    @import "../../assets/styles/global";
+    .title-bar-wrapper {
+        position: absolute;
+        width: 100%;
+        height: px2rem(48);
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        .icon-wrapper {
+            width: px2rem(48);
+            height: 100%;
+            text-align: center;
+            cursor: pointer;
+        }
     }
-  }
-}
 </style>
