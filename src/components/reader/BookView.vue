@@ -6,13 +6,13 @@
                     <span id="icon-toc" class="iconfont icon icon-menu" :style="{color: theme.body.color}"></span>
                 </div>
                 <img src="/static/prev.png" v-show="navShow"/>
-                <div class="icon-setting-wrapper" @click.stop.prevent="onSettingToggle">
+                <div class="icon-setting-wrapper" @click.stop.prevent="onSettingClick">
                     <span id="icon-setting" class="iconfont icon icon-more" :style="{color: theme.body.color}"></span>
                 </div>
             </div>
         </div>
         <div id="content"></div>
-        <div class="mask" @click.stop.prevent="onSettingToggle"></div>
+        <div class="mask" @click.stop.prevent="onClickPage"></div>
         <div class="nav-next" @click.stop.prevent="clickRightNav" :style="{color: theme.body.color, background: theme.body.background}">
             <img src="/static/next.png" v-show="navShow"/>
         </div>
@@ -51,9 +51,13 @@
                 console.log('click next')
                 this.$emit('event-page-next')
             },
-            onSettingToggle () {
+            onClickPage () {
                 console.log('click page')
                 this.$emit('event-page-click')
+            },
+            onSettingClick () {
+                console.log('click setting')
+                this.$emit('event-setting-click')
             }
         }
     }

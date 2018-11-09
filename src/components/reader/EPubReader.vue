@@ -7,7 +7,8 @@
         <EPubBookView ref="bookView" @event-toc-toggle="toggleToc"
                       @event-page-prev="prevPage"
                       @event-page-next="nextPage"
-                      @event-page-click="clickPage" :nav-show="!isShowLoading" :theme="currTheme">
+                      @event-page-click="pageClick"
+                      @event-setting-click="settingOpen" :nav-show="!isShowLoading" :theme="currTheme">
         </EPubBookView>
         <EPubBookLoading :showing="isShowLoading" :showError="isShowLoadError"
                          :theme="this.currTheme"></EPubBookLoading>
@@ -83,7 +84,7 @@
             this.ePub.loaded.navigation.then(({toc}) => {
                 this.toc = toc
             })
-            let path = '/static/epubs/' + this.$route.params.id + '.epub'
+            let path = 'http://127.0.0.1:8888/epubs/' + this.$route.params.id + '.epub'
             this.initReader(path)
             this.ePub.ready.then(() => {
                 return this.ePub.locations.generate()
@@ -104,6 +105,7 @@
             toggleToc () {
                 if (this.isShowMenu) {
                     this.isShowMenu = false
+                    this.$refs.menuBar.hideSetting()
                 } else {
                     this.isShowToc = !this.isShowToc
                 }
@@ -125,7 +127,6 @@
             },
             initReader (path) {
                 this.ePub.open(path).then(() => {
-                    console.log(this.ePub)
                     this.redition = this.$refs.bookView.render(this.ePub)
                     this.redition.themes.register(this.themes)
                     this.redition.themes.fontSize(this.currFontSize + 'px')
@@ -148,6 +149,7 @@
             prevPage () {
                 if (this.isShowMenu) {
                     this.isShowMenu = false
+                    this.$refs.menuBar.hideSetting()
                 } else if (this.redition) {
                     this.redition.prev()
                 }
@@ -155,20 +157,24 @@
             nextPage () {
                 if (this.isShowMenu) {
                     this.isShowMenu = false
+                    this.$refs.menuBar.hideSetting()
                 } else if (this.redition) {
                     this.redition.next()
                 }
             },
-            clickPage () {
+            pageClick () {
                 if (this.isShowToc) {
                     this.isShowToc = false
                 } else if (this.isShowMenu) {
                     this.isShowMenu = false
-                } else {
-                    this.isShowMenu = !this.isShowMenu
                     if (!this.isShowMenu) {
                         this.$refs.menuBar.hideSetting()
                     }
+                }
+            },
+            settingOpen () {
+                if (!this.isShowMenu) {
+                    this.isShowMenu = true
                 }
             },
             fontSizeSelect (size) {
