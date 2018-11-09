@@ -100,6 +100,11 @@
                         title: '越女剑',
                         cover: '/static/covers/YNJ.jpg',
                         url: '/book/yuenujian'
+                    },
+                    {
+                        title: '金刚经',
+                        cover: '/static/covers/jingangjing.jpg',
+                        url: '/book/jingangjing'
                     }
                 ]
             }

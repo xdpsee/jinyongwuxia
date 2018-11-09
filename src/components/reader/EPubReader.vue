@@ -84,7 +84,7 @@
             this.ePub.loaded.navigation.then(({toc}) => {
                 this.toc = toc
             })
-            let path = 'http://127.0.0.1:8888/epubs/' + this.$route.params.id + '.epub'
+            let path = '/static/epubs/' + this.$route.params.id + '.epub'
             this.initReader(path)
             this.ePub.ready.then(() => {
                 return this.ePub.locations.generate()
