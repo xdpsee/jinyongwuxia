@@ -24,7 +24,7 @@
     import ProgressBar from './ProgressBar'
 
     export default {
-        name: 'EPubBookView',
+        name: 'PageView',
         components: {TitleBar, ProgressBar},
         comments: {TitleBar, ProgressBar},
         props: {

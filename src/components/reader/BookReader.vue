@@ -1,17 +1,17 @@
 <template>
     <div class="ebook-wrapper" :style="{background: currTheme.body.background}">
-        <EPubBookToc v-show="isShowToc" :title="book.title" :contents="toc" :curr_chapter="currChapter"
+        <TocBar v-show="isShowToc" :title="book.title" :contents="toc" :curr_chapter="currChapter"
                      @event-toc-chapter-click="chapterSelect" @event-toc-close-click="toggleToc"
                      :theme="currTheme">
-        </EPubBookToc>
-        <EPubBookView ref="bookView" @event-toc-toggle="toggleToc"
+        </TocBar>
+        <PageView ref="bookView" @event-toc-toggle="toggleToc"
                       @event-page-prev="prevPage"
                       @event-page-next="nextPage"
                       @event-page-click="pageClick"
                       @event-setting-click="settingOpen" :nav-show="!isShowLoading" :theme="currTheme">
-        </EPubBookView>
-        <EPubBookLoading :showing="isShowLoading" :showError="isShowLoadError"
-                         :theme="this.currTheme"></EPubBookLoading>
+        </PageView>
+        <Loading :showing="isShowLoading" :showError="isShowLoadError"
+                         :theme="this.currTheme"></Loading>
         <MenuBar ref="menuBar" :showing="isShowMenu" :theme="currTheme" :font-sizes="fontSizes" :default-font-size="currFontSize"
                  @event-font-size-select="fontSizeSelect"></MenuBar>
     </div>
@@ -21,13 +21,13 @@
     import Epub from 'epubjs'
     import MenuBar from './MenuBar'
     import TocBar from './TocBar'
-    import BookView from './BookView'
+    import PageView from './PageView'
     import Loading from './Loading'
     import LocalForage from 'localforage'
 
     export default {
         name: 'BookReader',
-        components: {MenuBar, EPubBookToc: TocBar, EPubBookView: BookView, EPubBookLoading: Loading},
+        components: {MenuBar, TocBar, PageView, Loading},
         data () {
             return {
                 themes: {
