@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import BookList from '../components/books/BookList'
-import EPubReader from '../components/reader/EPubReader'
+import BookShelf from '../components/shelf/BookShelf'
+import BookReader from '../components/reader/BookReader'
 
 Vue.use(Router)
 
@@ -10,11 +10,11 @@ export default new Router({
     routes: [
         {
             path: '/',
-            component: BookList
+            component: BookShelf
         },
         {
             path:'/book/:id',
-            component: EPubReader
+            component: BookReader
         }
     ]
 })

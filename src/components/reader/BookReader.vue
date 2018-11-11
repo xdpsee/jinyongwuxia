@@ -26,7 +26,7 @@
     import LocalForage from 'localforage'
 
     export default {
-        name: 'EPubReader',
+        name: 'BookReader',
         components: {MenuBar, EPubBookToc: TocBar, EPubBookView: BookView, EPubBookLoading: Loading},
         data () {
             return {

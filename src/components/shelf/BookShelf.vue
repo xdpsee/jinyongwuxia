@@ -22,7 +22,7 @@
     import router from '../../router'
 
     export default {
-        name: 'BookList',
+        name: 'BookShelf',
         data () {
             return {
                 books: [
