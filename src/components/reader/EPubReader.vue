@@ -23,6 +23,7 @@
     import TocBar from './TocBar'
     import BookView from './BookView'
     import Loading from './Loading'
+    import LocalForage from 'localforage'
 
     export default {
         name: 'EPubReader',
@@ -77,29 +78,21 @@
             }
         },
         mounted () {
+            let path = '/static/epubs/' + this.$route.params.id + '.epub'
             this.ePub = new Epub({restore: true})
             this.ePub.loaded.metadata.then((meta) => {
                 this.book.title = meta.title
+                console.log('load meta')
             })
+
+            this.initReader(path)
+
             this.ePub.loaded.navigation.then(({toc}) => {
                 this.toc = toc
+                console.log('load toc')
+                this.initLocation()
             })
-            let path = '/static/epubs/' + this.$route.params.id + '.epub'
-            this.initReader(path)
-            this.ePub.ready.then(() => {
-                return this.ePub.locations.generate()
-            }).then(() => {
-                this.locations = JSON.parse(this.ePub.locations.save())
-                this.isReady = true
-                this.redition.on('relocated', (location) => {
-                    //const percent = this.ePub.locations.percentageFromCfi(location.start.cfi)
-                    //const percentage = Math.floor(percent * 100)
-                    //let curr = this.toc.find(e => e.href === location.start.href)
-                    //if (curr) {
-                    //    this.currChapter = curr
-                    //}
-                })
-            })
+
         },
         methods: {
             toggleToc () {
@@ -126,16 +119,63 @@
                 }
             },
             initReader (path) {
+                console.log('init reader')
                 this.ePub.open(path).then(() => {
                     this.redition = this.$refs.bookView.render(this.ePub)
                     this.redition.themes.register(this.themes)
                     this.redition.themes.fontSize(this.currFontSize + 'px')
                     this.themeSelect(this.currTheme.name)
-                    this.redition.display()
-                    this.isShowLoading = false
+
                     document.addEventListener('keyup', this.onKeyUp)
                 }, () => {
                     this.isShowLoadError = true
+                })
+            },
+            initLocation () {
+                console.log('init location')
+                this.loadLocation()
+                this.ePub.ready.then(() => {
+                    return this.ePub.locations.generate()
+                }).then((locations) => {
+                    this.locations = locations
+                    this.isReady = true
+                    this.redition.on('relocated', (location) => {
+                        this.saveLocation(location)
+                    })
+                })
+            },
+            loadLocation () {
+                console.log('load location')
+                LocalForage.getItem('chapter-' + this.$route.params.id).then((value) => {
+                    let chapter = this.toc.find(e => e.href === value)
+                    if (chapter) {
+                        this.currChapter = chapter
+                    } else {
+                        this.currChapter = this.toc[0]
+                    }
+                })
+                LocalForage.getItem('location-' + this.$route.params.id).then((cfi) => {
+                    console.log(cfi + ' -<')
+                    if (cfi) {
+                        this.redition.display(cfi).then(() => {
+                            this.isShowLoading = false
+                        })
+                    } else {
+                        this.redition.display().then(() => {
+                            this.isShowLoading = false
+                        })
+                    }
+                })
+            },
+            saveLocation (location) {
+                console.log('save location')
+                let chapter = this.toc.find(e => e.href === location.start.href)
+                if (chapter) {
+                    this.currChapter = chapter
+                    LocalForage.setItem('chapter-' + this.$route.params.id, chapter.href).then(()=>{})
+                }
+                LocalForage.setItem('location-' + this.$route.params.id, location.start.cfi).then((value) => {
+                    console.log(value + ' ->')
                 })
             },
             onKeyUp (e) {
