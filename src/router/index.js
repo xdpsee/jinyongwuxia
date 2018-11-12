@@ -19,7 +19,7 @@ export default new Router({
             component: BookShelf
         },
         {
-            path: '/book/:id',
+            path: '/book',
             component: BookReader
         }
     ]

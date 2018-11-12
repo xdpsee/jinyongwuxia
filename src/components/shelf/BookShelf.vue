@@ -19,8 +19,6 @@
 </template>
 
 <script>
-    import router from '../../router'
-
     export default {
         name: 'BookShelf',
         data () {
@@ -29,89 +27,85 @@
                     {
                         title: '飞狐外传',
                         cover: '/static/covers/FHWZ.jpg',
-                        url: '/book/feihuwaizhuan'
+                        id: 'feihuwaizhuan'
                     },
                     {
                         title: '雪山飞狐',
                         cover: '/static/covers/XSFH.jpg',
-                        url: '/book/xueshanfeihu'
+                        id: 'xueshanfeihu'
                     },
                     {
                         title: '连城诀',
                         cover: '/static/covers/LCJ.jpg',
-                        url: '/book/lianchengjue'
+                        id: 'lianchengjue'
                     },
                     {
                         title: '天龙八部',
                         cover: '/static/covers/TLBB.jpg',
-                        url: '/book/tianlongbabu'
+                        id: 'tianlongbabu'
                     },
                     {
                         title: '射雕英雄传',
                         cover: '/static/covers/SDYXZ.jpg',
-                        url: '/book/shediaoyingxiongzhuan'
+                        id: 'shediaoyingxiongzhuan'
                     },
                     {
                         title: '白马啸西风',
                         cover: '/static/covers/BMXXF.jpg',
-                        url: '/book/baimaxiaoxifeng'
+                        id: 'baimaxiaoxifeng'
                     },
                     {
                         title: '鹿鼎记',
                         cover: '/static/covers/LDJ.jpg',
-                        url: '/book/ludingji'
+                        id: 'ludingji'
                     },
                     {
                         title: '笑傲江湖',
                         cover: '/static/covers/XAJH.jpg',
-                        url: '/book/xiaoaojianghu'
+                        id: 'xiaoaojianghu'
                     },
                     {
                         title: '书剑恩仇录',
                         cover: '/static/covers/SJECL.jpg',
-                        url: '/book/shujianenchoulu'
+                        id: 'shujianenchoulu'
                     },
                     {
                         title: '神雕侠侣',
                         cover: '/static/covers/SDXL.jpg',
-                        url: '/book/shendiaoxialu'
+                        id: 'shendiaoxialu'
                     },
                     {
                         title: '倚天屠龙记',
                         cover: '/static/covers/YTTLJ.jpg',
-                        url: '/book/yitiantulongji'
+                        id: 'yitiantulongji'
                     },
                     {
                         title: '碧血剑',
                         cover: '/static/covers/BXJ.jpg',
-                        url: '/book/bixuejian'
+                        id: 'bixuejian'
                     },
                     {
                         title: '鸳鸯刀',
                         cover: '/static/covers/YYD.jpg',
-                        url: '/book/yuanyangdao'
+                        id: 'yuanyangdao'
                     },
                     {
                         title: '侠客行',
                         cover: '/static/covers/XKX.jpg',
-                        url: '/book/xiakexing'
+                        id: 'xiakexing'
                     },
                     {
                         title: '越女剑',
                         cover: '/static/covers/YNJ.jpg',
-                        url: '/book/yuenujian'
-                    },
-                    {
-                        title: '金刚经',
-                        cover: '/static/covers/jingangjing.jpg',
-                        url: '/book/jingangjing'
+                        id: 'yuenujian'
                     }
                 ]
             }
         },
         methods: {
             loadBook (book) {
-                router.push(book.url)
+                let route = this.$router.resolve({ path: '/book', query: {id: book.id}});
+                window.open(route.href, '_blank');
             }
         }
     }
@@ -175,11 +169,11 @@
         width: 100%;
         height: px2rem(50);
         margin-top: px2rem(40);
-        border-top: lightgray thin solid;
+        border-top: lightgray 1px solid;
         text-align: center;
         span {
             color: gray;
-            font-size: 0.3rem;
+            font-size: 0.2rem;
         }
     }
 </style>

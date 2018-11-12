@@ -78,7 +78,8 @@
             }
         },
         mounted () {
-            let path = '/static/epubs/' + this.$route.params.id + '.epub'
+            let bookId = this.$route.query.id;
+            let path = '/static/epubs/' + bookId + '.epub'
             this.ePub = new Epub({restore: true})
             this.ePub.loaded.metadata.then((meta) => {
                 this.book.title = meta.title
@@ -159,6 +160,11 @@
                     if (cfi) {
                         this.redition.display(cfi).then(() => {
                             this.isShowLoading = false
+                        }).catch((reason) => {
+                            console.log(reason)
+                            this.redition.display().then(() => {
+                                this.isShowLoading = false
+                            })
                         })
                     } else {
                         this.redition.display().then(() => {
